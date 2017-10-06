@@ -7,6 +7,7 @@ using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Demo.AspNetCore.Mvc.CosmosDB.Services;
+using Demo.AspNetCore.Mvc.CosmosDB.Middlewares;
 
 namespace Demo.AspNetCore.Mvc.CosmosDB
 {
@@ -39,10 +40,13 @@ namespace Demo.AspNetCore.Mvc.CosmosDB
         {
             app.UseCosmosDBStorage();
 
+            app.UseMiddleware<HeadMethodMiddleware>();
+
             app.UseMvc();
 
             app.Run(async (context) =>
             {
+                context.Response.ContentLength = 34;
                 await context.Response.WriteAsync("-- Demo.AspNetCore.Mvc.CosmosDB --");
             });
         }
