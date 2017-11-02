@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Demo.AspNetCore.Mvc.CosmosDB.Filters;
 using Demo.AspNetCore.Mvc.CosmosDB.Services;
 using Demo.AspNetCore.Mvc.CosmosDB.Middlewares;
 
@@ -26,14 +27,17 @@ namespace Demo.AspNetCore.Mvc.CosmosDB
 
             services.AddMediatR(typeof(Startup).Assembly);
 
-            services.AddMvc()
-                .AddJsonOptions(options =>
-                {
-                    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-                    options.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-                    options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                    options.SerializerSettings.Converters.Add(new StringEnumConverter());
-                });
+            services.AddMvc(options =>
+            {
+                options.Filters.Add(new ConditionalRequestFilter());
+            })
+            .AddJsonOptions(options =>
+            {
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                options.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+                options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                options.SerializerSettings.Converters.Add(new StringEnumConverter());
+            });
         }
 
         public void Configure(IApplicationBuilder app)

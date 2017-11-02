@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Demo.AspNetCore.Mvc.CosmosDB.Http;
 using Demo.AspNetCore.Mvc.CosmosDB.Model;
 using Demo.AspNetCore.Mvc.CosmosDB.Requests;
+using Demo.AspNetCore.Mvc.CosmosDB.Exceptions;
 using Microsoft.AspNetCore.JsonPatch;
 
 namespace Demo.AspNetCore.Mvc.CosmosDB.Controllers
@@ -70,7 +73,16 @@ namespace Demo.AspNetCore.Mvc.CosmosDB.Controllers
                 return modelValidationResult;
             }
 
-            Character character = await _mediator.Send(new UpdateRequest<Character>(id, update)); ;
+            Character character = null;
+            try
+            {
+                character = await _mediator.Send(CreateUpdateRequest(id, update));
+            }
+            catch (PreconditionFailedException)
+            {
+                return StatusCode(StatusCodes.Status412PreconditionFailed);
+            }
+
             if (character == null)
             {
                 return NotFound();
@@ -114,6 +126,13 @@ namespace Demo.AspNetCore.Mvc.CosmosDB.Controllers
             }
 
             return null;
+        }
+
+        private UpdateRequest<T> CreateUpdateRequest<T>(string id, T update)
+        {
+            HttpRequestConditions requestConditions = Request.GetRequestConditions();
+
+            return new UpdateRequest<T>(id, update, requestConditions.IfMatch, requestConditions.IfUnmodifiedSince);
         }
         #endregion
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MediatR;
 
 namespace Demo.AspNetCore.Mvc.CosmosDB.Requests
@@ -9,6 +10,10 @@ namespace Demo.AspNetCore.Mvc.CosmosDB.Requests
         public string Id { get; }
 
         public T Update { get; }
+
+        public IEnumerable<string> IfMatch { get; }
+
+        public DateTimeOffset? IfUnmodifiedSince { get; }
         #endregion
 
         #region Constructor
@@ -26,6 +31,13 @@ namespace Demo.AspNetCore.Mvc.CosmosDB.Requests
 
             Id = id;
             Update = update;
+        }
+
+        public UpdateRequest(string id, T update, IEnumerable<string> ifMatch, DateTimeOffset? ifUnmodifiedSince)
+            : this(id, update)
+        {
+            IfMatch = ifMatch;
+            IfUnmodifiedSince = ifUnmodifiedSince;
         }
         #endregion
     }

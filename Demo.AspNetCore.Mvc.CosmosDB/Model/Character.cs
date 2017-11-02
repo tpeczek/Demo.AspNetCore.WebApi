@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.ComponentModel.DataAnnotations;
 
 namespace Demo.AspNetCore.Mvc.CosmosDB.Model
@@ -46,9 +47,25 @@ namespace Demo.AspNetCore.Mvc.CosmosDB.Model
         Orange = 7
     }
 
-    public class Character
+    public class Character: IConditionalRequestMetadata
     {
-        public string Id { get; protected set; }
+        #region Fields
+        private string _id;
+        private DateTime _lastUpdatedDate;
+        private string _entityTag;
+        #endregion
+
+        #region Properties
+        public string Id
+        {
+            get { return _id; }
+
+            set
+            {
+                _id = value;
+                _entityTag = null;
+            }
+        }
 
         [Required]
         [MaxLength(255)]
@@ -72,6 +89,31 @@ namespace Demo.AspNetCore.Mvc.CosmosDB.Model
 
         public DateTime CreatedDate { get; protected set; }
 
-        public DateTime LastUpdatedDate { get; protected set; }
+        public DateTime LastUpdatedDate
+        {
+            get { return _lastUpdatedDate; }
+
+            set
+            {
+                _lastUpdatedDate = value;
+                _entityTag = null;
+            }
+        }
+
+        public string EntityTag
+        {
+            get
+            {
+                if (String.IsNullOrEmpty(_entityTag))
+                {
+                    _entityTag = "\"" + Id + "-" + LastUpdatedDate.Ticks.ToString(CultureInfo.InvariantCulture) + "\"";
+                }
+
+                return _entityTag;
+            }
+        }
+
+        public DateTime? LastModified { get { return LastUpdatedDate; } }
+        #endregion
     }
 }
