@@ -1,4 +1,6 @@
 ﻿using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Demo.AspNetCore.Mvc.CosmosDB.Model;
 using Demo.AspNetCore.Mvc.CosmosDB.Requests;
 using Demo.AspNetCore.Mvc.CosmosDB.Services;
@@ -19,9 +21,9 @@ namespace Demo.AspNetCore.Mvc.CosmosDB.Handlers.Characters
         #endregion
 
         #region Methods
-        public Character Handle(GetSingleRequest<Character> message)
+        public async Task<Character> Handle(GetSingleRequest<Character> request, CancellationToken cancellationToken)
         {
-            return _client.Characters.GetDocumentQuery().Where(c => c.Id == message.Id).ToList().FirstOrDefault();
+            return await _client.Characters.GetDocumentQuery().Where(c => c.Id == request.Id).ToAsyncEnumerable().FirstOrDefault();
         }
         #endregion
     }

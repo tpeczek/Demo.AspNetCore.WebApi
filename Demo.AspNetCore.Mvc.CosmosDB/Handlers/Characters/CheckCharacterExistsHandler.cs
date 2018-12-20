@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Demo.AspNetCore.Mvc.CosmosDB.Model;
 using Demo.AspNetCore.Mvc.CosmosDB.Requests;
 using Demo.AspNetCore.Mvc.CosmosDB.Services;
@@ -20,11 +22,11 @@ namespace Demo.AspNetCore.Mvc.CosmosDB.Handlers.Characters
         #endregion
 
         #region Methods
-        public bool Handle(CheckExistsRequest<Character> message)
+        public async Task<bool> Handle(CheckExistsRequest<Character> request, CancellationToken cancellationToken)
         {
-            return (!String.IsNullOrWhiteSpace(message.OtherThanId) ?
-               _client.Characters.GetDocumentQuery().Where(c => (c.Id != message.OtherThanId) && (c.Name == message.Name))
-               : _client.Characters.GetDocumentQuery().Where(c => c.Name == message.Name)).Take(1).ToArray().Length > 0;
+            return await (!String.IsNullOrWhiteSpace(request.OtherThanId) ?
+               _client.Characters.GetDocumentQuery().Where(c => (c.Id != request.OtherThanId) && (c.Name == request.Name))
+               : _client.Characters.GetDocumentQuery().Where(c => c.Name == request.Name)).Take(1).ToAsyncEnumerable().Any();
         }
         #endregion
     }

@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
 using Demo.AspNetCore.Mvc.CosmosDB.Model;
 using Demo.AspNetCore.Mvc.CosmosDB.Requests;
 using Demo.AspNetCore.Mvc.CosmosDB.Services;
@@ -19,9 +21,9 @@ namespace Demo.AspNetCore.Mvc.CosmosDB.Handlers.Characters
         #endregion
 
         #region Methods
-        public Task Handle(DeleteRequest<Character> message)
+        public Task<Unit> Handle(DeleteRequest<Character> request, CancellationToken cancellationToken)
         {
-            return _client.Characters.DeleteDocumentAsync(message.Item.Id);
+            return (Task<Unit>)_client.Characters.DeleteDocumentAsync(request.Item.Id);
         }
         #endregion
     }

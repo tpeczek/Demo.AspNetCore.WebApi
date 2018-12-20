@@ -3,6 +3,6 @@ using Demo.AspNetCore.Mvc.CosmosDB.Requests;
 
 namespace Demo.AspNetCore.Mvc.CosmosDB.Handlers
 {
-    public interface ICreateHandler<T> : IAsyncRequestHandler<CreateRequest<T>, T>
+    public interface ICreateHandler<T> : IRequestHandler<CreateRequest<T>, T>
     { }
 }

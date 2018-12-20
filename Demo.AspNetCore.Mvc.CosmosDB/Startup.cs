@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MediatR;
@@ -9,6 +10,7 @@ using Newtonsoft.Json.Converters;
 using Demo.AspNetCore.Mvc.CosmosDB.Filters;
 using Demo.AspNetCore.Mvc.CosmosDB.Services;
 using Demo.AspNetCore.Mvc.CosmosDB.Middlewares;
+
 
 namespace Demo.AspNetCore.Mvc.CosmosDB
 {
@@ -37,7 +39,8 @@ namespace Demo.AspNetCore.Mvc.CosmosDB
                 options.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
                 options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
                 options.SerializerSettings.Converters.Add(new StringEnumConverter());
-            });
+            })
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
         public void Configure(IApplicationBuilder app)
