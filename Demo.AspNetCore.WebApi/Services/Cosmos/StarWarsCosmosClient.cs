@@ -58,7 +58,7 @@ namespace Demo.AspNetCore.WebApi.Services.Cosmos
         public async Task EnsureDatabaseSeededAsync()
         {
             Container charactersContainer = _cosmosClient.GetContainer(_cosmosOptions.DatabaseId, CHARACTERS_CONTAINER_ID);
-            using FeedIterator<Character> charactersFeedIterator = charactersContainer.GetItemQueryIterator<Character>($"SELECT * FROM C");
+            using FeedIterator<Character> charactersFeedIterator = charactersContainer.GetItemQueryIterator<Character>($"SELECT C.id FROM C");
             FeedResponse<Character> charactersFeedResponse = await charactersFeedIterator.ReadNextAsync();
             if (charactersFeedResponse.Count == 0)
             {

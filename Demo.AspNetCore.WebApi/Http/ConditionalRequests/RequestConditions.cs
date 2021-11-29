@@ -17,7 +17,7 @@ namespace Demo.AspNetCore.WebApi.Http.ConditionalRequests
         #endregion
 
         #region Methods
-        public void CheckPreconditionFailed(ConditionalRequestValidators validators)
+        public bool CheckPreconditionFailed(ConditionalRequestValidators validators)
         {
             if (IfMatch != null && IfMatch.Any())
             {
@@ -25,7 +25,7 @@ namespace Demo.AspNetCore.WebApi.Http.ConditionalRequests
                 {
                     if (!IfMatch.Contains(validators.EntityTag))
                     {
-                        throw new PreconditionFailedException();
+                        return true;
                     }
                 }
             }
@@ -35,9 +35,11 @@ namespace Demo.AspNetCore.WebApi.Http.ConditionalRequests
 
                 if (lastModified > IfUnmodifiedSince.Value)
                 {
-                    throw new PreconditionFailedException();
+                    return true;
                 }
             }
+
+            return false;
         }
         #endregion
     }

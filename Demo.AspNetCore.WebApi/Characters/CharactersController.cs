@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediatR;
@@ -6,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Demo.AspNetCore.WebApi.Characters.Actions;
 using Demo.AspNetCore.WebApi.Http.ConditionalRequests;
+using Demo.AspNetCore.WebApi.Http;
 
 namespace Demo.AspNetCore.WebApi.Characters
 {
@@ -68,29 +71,49 @@ namespace Demo.AspNetCore.WebApi.Characters
 
         // PUT api/characters/{id}
         [HttpPut("{id}")]
-        public async Task<ActionResult<Character>> Put(string id, Character update)
+        public async Task<ActionResult<Character>> Put(string id, Character replacement)
         {
-            if (await _mediator.Send(new ExistsRequest(update.Name, id)))
+            if (await _mediator.Send(new ExistsRequest(replacement.Name, id)))
             {
                 return StatusCode((int)HttpStatusCode.Conflict);
             }
 
-            Character character;
-            try
-            {
-                character = await _mediator.Send(new UpdateRequest(id, update, Request.GetRequestConditions()));
-            }
-            catch (PreconditionFailedException)
-            {
-                return StatusCode(StatusCodes.Status412PreconditionFailed);
-            }
-
+            Character character = await _mediator.Send(new GetByIdRequest(id));
             if (character is null)
             {
                 return NotFound();
             }
 
-            return character;
+            if (Request.GetRequestConditions().CheckPreconditionFailed((character as IConditionalRequestMetadata).GetValidators()))
+            {
+                return StatusCode(StatusCodes.Status412PreconditionFailed);
+            }            
+
+            return await _mediator.Send(new ReplaceRequest(character, replacement));
+        }
+
+        // PATCH api/characters/{id}
+        [HttpPatch("{id}")]
+        public async Task<ActionResult<Character>> Patch(string id, JsonPatch<Character> update)
+        {
+            string name = update.LastOrDefault(o => o.Path == "/name")?.Value.ToString();
+            if (!String.IsNullOrEmpty(name) && await _mediator.Send(new ExistsRequest(name, id)))
+            {
+                return StatusCode((int)HttpStatusCode.Conflict);
+            }
+
+            Character character = await _mediator.Send(new GetByIdRequest(id));
+            if (character is null)
+            {
+                return NotFound();
+            }
+
+            if (Request.GetRequestConditions().CheckPreconditionFailed((character as IConditionalRequestMetadata).GetValidators()))
+            {
+                return StatusCode(StatusCodes.Status412PreconditionFailed);
+            }
+
+            return await _mediator.Send(new PatchRequest(id, update));
         }
 
         // DELETE api/characters/{id}
