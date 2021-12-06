@@ -4,6 +4,7 @@ Sample Web API powered by ASP.NET Core MVC, Azure Cosmos DB and MediatR:
 
 - Basic CRUD using Azure Cosmos DB .NET SDK v3 for SQL API
 - [Support for conditional requests](https://www.tpeczek.com/2017/11/handling-conditional-requests-in-aspnet.html)
+- [support for PATCH requests through Azure Cosmos DB partial document update and JSON Patch](https://www.tpeczek.com/2021/11/leveraging-azure-cosmos-db-partial.html)
 
 ## Sponsor This Project
 
